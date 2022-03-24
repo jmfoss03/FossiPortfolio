@@ -1,0 +1,370 @@
+Titanic Datasets
+Jeff Fossi
+
+import pandas as pd
+import numpy as np
+import seaborn as sns
+
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.feature_selection import SelectKBest
+from sklearn.decomposition import PCA
+from sklearn.model_selection import GridSearchCV, KFold
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import make_scorer, accuracy_score, classification_report, confusion_matrix
+%matplotlib inline
+
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
+from sklearn.model_selection import StratifiedShuffleSplit
+from sklearn.preprocessing import OneHotEncoder
+from sklearn import decomposition
+from sklearn import datasets
+
+np.random.seed(1911)
+# Load titanic train dataset
+
+titanic_train_1 = pd.read_csv(r'titanic-train.csv')
+titanic_test_1 = pd.read_csv(r'titanic-test.csv')
+titanic_train_1
+titanic_test_1.head()
+Explore data
+titanic_train_1.columns
+titanic_train_1.describe()
+titanic_train_1['Embarked'].value_counts()
+female_survival_rate = np.sum((titanic_train_1.Sex == 'female') & (titanic_train_1.Survived == 1)) / np.sum(titanic_train_1.Sex == 'female')
+male_survival_rate = np.sum((titanic_train_1.Sex == 'male') & (titanic_train_1.Survived == 1)) / np.sum(titanic_train_1.Sex == 'male')
+sex_survival_rates = np.array([female_survival_rate, male_survival_rate])
+sex_death_rates = 1 - sex_survival_rates
+
+plt.figure(figsize=[6,4])
+plt.bar(['Female', 'Male'], sex_survival_rates, label='Survived', 
+        color='cornflowerblue', edgecolor='k')
+plt.bar(['Female', 'Male'], sex_death_rates, label='Died', 
+        bottom=sex_survival_rates, color='Salmon', edgecolor='k')
+plt.legend(loc="center left", bbox_to_anchor=(1.03,0.5))
+plt.ylabel('Proportion')
+plt.title('Survival Rate by Sex')
+plt.show()
+class1_survival_rate = np.sum((titanic_train_1.Pclass == 1) & (titanic_train_1.Survived == 1)) / np.sum(titanic_train_1.Pclass == 1)
+class2_survival_rate = np.sum((titanic_train_1.Pclass == 2) & (titanic_train_1.Survived == 1)) / np.sum(titanic_train_1.Pclass == 2)
+class3_survival_rate = np.sum((titanic_train_1.Pclass == 3) & (titanic_train_1.Survived == 1)) / np.sum(titanic_train_1.Pclass == 3)
+class_survival_rates = np.array([class1_survival_rate, class2_survival_rate, class3_survival_rate])
+class_death_rates = 1 - class_survival_rates
+
+plt.figure(figsize=[6,4])
+plt.bar(['Class 1', 'Class 2', 'Class 3'], class_survival_rates, label='Survived', 
+        color='cornflowerblue', edgecolor='k')
+plt.bar(['Class 1', 'Class 2', 'Class 3'], class_death_rates, label='Died', 
+        bottom=class_survival_rates, color='Salmon', edgecolor='k')
+plt.legend(loc="center left", bbox_to_anchor=(1.03,0.5))
+plt.ylabel('Proportion')
+plt.title('Survival Rate by Class')
+plt.show()
+plt.figure(figsize=[8,6])
+plt.hist([titanic_train_1.Age.values[titanic_train_1.Survived == 1], titanic_train_1.Age.values[titanic_train_1.Survived == 0]], 
+         bins=np.arange(0,90,5), label=['Survived','Died'], density=True,
+         edgecolor='k', alpha=0.6, color=['cornflowerblue','salmon'])
+plt.xticks(np.arange(0,90,5))
+plt.legend()
+plt.xlabel('Age')
+plt.ylabel('Proportion')
+plt.title('Survival Rates by Age Group')
+plt.show()
+# check for null
+
+titanic_train_1.isnull().sum()
+# fill in nan for age and embarked
+
+total = [titanic_train_1, titanic_test_1]
+titanic_train_1.Embarked.value_counts()
+Fre_embarked_package = titanic_train_1.Embarked.mode()
+Fre_age_band = titanic_train_1.Age.mode()
+for dataset in total:
+    dataset['Age']=dataset.Age.fillna(Fre_age_band[0])
+    dataset['Embarked']=dataset.Embarked.fillna(Fre_embarked_package[0])
+titanic_train_1.isnull().sum()
+titanic_train_1.describe
+Step 2 Data cleanse
+titanic_train_1.sample()
+train_keep = ['Survived', 'Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare']
+test_keep = ['PassengerId', 'Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Fare']
+titanic_train_2 = titanic_train_1[train_keep]
+titanic_test_2 = titanic_test_1[test_keep]
+titanic_train_2
+# One hot encoding for Sex
+
+dummies_train_sex = pd.get_dummies(titanic_train_1.Sex)
+dummies_test_sex = pd.get_dummies(titanic_test_1.Sex)
+dummies_train_sex.head(3)
+titanic_train_3 = pd.concat([titanic_train_2, dummies_train_sex], axis='columns')
+titanic_train_4 = titanic_train_3.drop('Sex', axis='columns')
+titanic_test_3 = pd.concat([titanic_test_2, dummies_test_sex], axis='columns')
+titanic_test_4 = titanic_test_3.drop('Sex', axis='columns')
+titanic_train_4.describe
+titanic_train_4.isnull().sum()
+titanic_train_4.dtypes
+# convert values to int
+
+
+titanic_train_3['Age'] = pd.to_numeric(titanic_train_4['Age'], downcast= "integer", errors='coerce')
+titanic_train_3['Fare'] = pd.to_numeric(titanic_train_4['Fare'], downcast= "integer", errors='coerce')
+
+
+
+titanic_test_3['Age'] = pd.to_numeric(titanic_test_4['Age'], downcast= "integer", errors='coerce')
+titanic_test_3['Fare'] = pd.to_numeric(titanic_test_4['Fare'], downcast= "integer", errors='coerce')
+
+titanic_test_3.dtypes
+cols_to_scale = ['Pclass', 'Age', 'Fare']
+
+from sklearn.preprocessing import MinMaxScaler
+
+scaler = MinMaxScaler()
+
+titanic_train_4[cols_to_scale] = scaler.fit_transform(titanic_train_4[cols_to_scale])
+titanic_test_4[cols_to_scale] = scaler.fit_transform(titanic_test_4[cols_to_scale])
+titanic_train_4.columns
+train_cols = ['Pclass', 'Age', 'SibSp', 'Parch', 'Fare', 'female', 'male','Survived']
+test_cols = ['PassengerId', 'Pclass', 'Age', 'SibSp', 'Parch', 'Fare', 'female', 'male']
+titanic_train_5 = titanic_train_4[train_cols]
+titanic_test_5 = titanic_test_4[test_cols]
+
+titanic_train_5
+Step 3 Outlier Analysis
+x = ['Age', 'Fare']
+
+def count_outliers(data,col):
+        q1 = data[col].quantile(0.25,interpolation='nearest')
+        q2 = data[col].quantile(0.5,interpolation='nearest')
+        q3 = data[col].quantile(0.75,interpolation='nearest')
+        q4 = data[col].quantile(1,interpolation='nearest')
+        IQR = q3 -q1
+        global LLP
+        global ULP
+        LLP = q1 - 1.5*IQR
+        ULP = q3 + 1.5*IQR
+        if data[col].min() > LLP and data[col].max() < ULP:
+            print("No outliers in",i)
+        else:
+            print("There are outliers in",i)
+            x = data[data[col]<LLP][col].size
+            y = data[data[col]>ULP][col].size
+            a.append(i)
+            print('Count of outliers are:',x+y)
+global a
+a = []
+for i in x:
+    count_outliers(titanic_train_5,i)
+def Box_plots(df):
+    plt.figure(figsize=(10, 4))
+    plt.title("Box Plot")
+    sns.boxplot(df)
+    plt.show()
+Box_plots(titanic_train_5['Age'])
+
+def hist_plots(df):
+    plt.figure(figsize=(10, 4))
+    plt.hist(df)
+    plt.title("Histogram Plot")
+    plt.show()
+hist_plots(titanic_train_5['Fare'])
+Step 4 Perform SVM
+# Create a pairplot of the data set. Which feature (independent variable) seems to be the most separable?
+
+import seaborn as sns
+
+sns.pairplot(titanic_train_5, hue = 'Survived', palette='Dark2')
+# Create a kde plot of above feature versus ...
+
+survived = titanic_train_5[titanic_train_5['Survived']==1]
+sns.kdeplot( survived['Pclass'], survived['Age'], 
+                 cmap="plasma", shade=True, thresh=0.05)
+survived = titanic_train_5[titanic_train_5['Survived']==1]
+sns.kdeplot( survived['Fare'], survived['Age'], 
+                 cmap="plasma", shade=True, thresh=0.05)
+X = titanic_train_5.drop(['Survived'], axis = 1)  #Independent variables(features)select all but last column
+y = titanic_train_5['Survived']                  
+Train Test Split
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30)
+Train a Model
+from sklearn.svm import SVC
+
+svc_model = SVC()
+svc_model.fit(X_train,y_train)
+Model Evaluation
+Now get predictions from the model and create a confusion matrix and a classification report.
+
+predictions = svc_model.predict(X_test)
+from sklearn.metrics import classification_report,confusion_matrix
+print(confusion_matrix(y_test,predictions))
+print(classification_report(y_test,predictions))
+Let's see if we can tune the parameters to try to get even better results.
+
+Gridsearch Practice
+Import GridsearchCV from SciKit Learn.
+
+from sklearn.model_selection import GridSearchCV
+param_grid = {'C': [0.1,1, 10, 100], 'gamma': [1,0.1,0.01,0.001]} 
+grid = GridSearchCV(SVC(),param_grid,refit=True,verbose=2)
+grid.fit(X_train,y_train)
+Now take that grid model and create some predictions using the test set and create classification reports and confusion matrices for them. Were you able to improve?
+
+grid_predictions = grid.predict(X_test)
+print(confusion_matrix(y_test,grid_predictions))
+print(classification_report(y_test,grid_predictions))
+Step 5 PCA
+Adapted from https://gtraskas.github.io/post/titanic_prediction by G. Traskas
+
+# Create the classifier.
+clf = AdaBoostClassifier()
+
+# Create the pipeline.
+pipeline = Pipeline([('reduce_dim', PCA()),
+                     ('clf', clf)])
+
+# Create the parameters.
+n_feature_options = [1, 2, 3, 4, 5, 6, 7]
+n_estimators = [50]
+parameters = [{'reduce_dim': [PCA(iterated_power=7)],
+               'reduce_dim__n_components': n_feature_options,
+               'clf__n_estimators': n_estimators},
+              {'reduce_dim': [SelectKBest()],
+               'reduce_dim__k': n_feature_options,
+               'clf__n_estimators': n_estimators}]
+
+reducer_labels = ['PCA', 'KBest()']
+
+# Function to get the best estimator and print results
+def compare_estimators():
+
+    # Create the KFold cross-validator.
+    kf = KFold(n_splits=50, shuffle=True, random_state=23)
+
+    # Create accuracy score to compare each combination.
+    scoring = {'Accuracy': make_scorer(accuracy_score)}
+
+    # Create the grid search.
+    grid = GridSearchCV(estimator=pipeline,
+                        param_grid=parameters,
+                        scoring=scoring,
+                        cv=kf, refit='Accuracy')
+
+    # Fit grid search combinations.
+    grid.fit(X_train, y_train)
+
+    # Make predictions.
+    predictions = grid.predict(X_test)
+
+    # Evaluate using sklearn.classification_report().
+    report = classification_report(y_test, predictions)
+
+    # Get the best parameters and scores.
+    best_parameters = grid.best_params_
+    best_score = grid.best_score_
+    
+    mean_scores = np.array(grid.cv_results_['mean_test_Accuracy'])
+    # scores are in the order of param_grid iteration, which is alphabetical
+    mean_scores = mean_scores.reshape(len(n_estimators), -1, len(n_feature_options))
+    # select score for best C
+    mean_scores = mean_scores.max(axis=0)
+    bar_offsets = (np.arange(len(n_feature_options)) *
+                   (len(reducer_labels) + 1) + .5)
+
+    plt.figure(figsize=(10, 5))
+    for i, (label, reducer_scores) in enumerate(zip(reducer_labels, mean_scores)):
+        plt.bar(bar_offsets + i, reducer_scores, label=label)
+
+    plt.title("Comparing feature reduction techniques")
+    plt.xlabel('Reduced number of features')
+    plt.xticks(bar_offsets + len(reducer_labels) / 2, n_feature_options)
+    plt.ylabel('Accuracy')
+    plt.ylim((0, 1))
+    plt.legend(loc='upper left')
+
+    # Print the results.
+    print("\nAccuracy score: ", accuracy_score(y_test, predictions))
+    print("\nReport:\n")
+    print(report)
+    print("\nBest Mean Accuracy score: ", best_score)
+    print("\nBest parameters:\n")
+    print(best_parameters)
+    print(confusion_matrix(y_test, predictions))
+
+    
+    return grid.best_estimator_
+
+compare_estimators()
+Tune to best parameter
+Adapted from https://gtraskas.github.io/post/titanic_prediction by G. Traskas
+
+clf = AdaBoostClassifier()
+
+# Create the parameters.
+parameters = {'n_estimators': [10, 25, 50, 75],
+              'algorithm': ['SAMME', 'SAMME.R'],
+              'random_state': [3]}
+
+# Create the Stratified ShuffleSplit cross-validator.
+sss = StratifiedShuffleSplit(n_splits=50, test_size=0.2, random_state=3)
+
+# Create multiple evaluation metrics to compare each combination.
+scoring = {'AUC': 'roc_auc',
+           'Accuracy': make_scorer(accuracy_score),
+           'Precision': 'precision',
+           'Recall': 'recall',
+           'f1': 'f1'}
+
+# Create the grid search.
+grid = GridSearchCV(estimator=clf,
+                    param_grid=parameters,
+                    scoring=scoring,
+                    cv=sss, refit='Accuracy')
+
+# Fit grid search combinations.
+grid.fit(X_train, y_train)
+
+# Make predictions.
+predictions = grid.predict(X_test)
+
+# Evaluate using sklearn.classification_report().
+report = classification_report(y_test, predictions)
+
+# Get the best parameters and scores.
+best_parameters = grid.best_params_
+best_score = grid.best_score_
+
+# Print the results.
+print("\nAccuracy score: ", accuracy_score(y_test, predictions))
+print("\nReport:\n")
+print(report)
+print("\nBest Accuracy score: ", best_score)
+print("\nBest parameters:\n")
+print(best_parameters)
+print(confusion_matrix(y_test, predictions))
+
+best_clf = grid.best_estimator_
+PCA Ver 2
+# scale down to 3 features, is it better?
+
+pca = decomposition.PCA(n_components=0)
+pca.fit(X_train)
+train_pca_1 = pca.transform(X_train)
+grid = GridSearchCV(SVC(),param_grid,refit=True,verbose=2)
+grid.fit(X_train,y_train)
+print(confusion_matrix(y_test,grid_predictions))
+print(classification_report(y_test,grid_predictions))
+Conclusion.
+
+Post PCA performed the same, if not worse than the original result.
+
+pred_clf1 = best_clf.predict(X_test)
+pred_clf1
+Output prediction to train data
+passenger_ids = titanic_test_5['PassengerId']
+predictions = best_clf.predict(titanic_test_5.drop('PassengerId', axis=1))
+
+output = pd.DataFrame({ 'PassengerId' : passenger_ids, 'Survived': predictions })
+output.to_csv('titanic_predictions_fossi.csv', index = False)
+output.sample(25)
