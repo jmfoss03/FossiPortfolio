@@ -25,12 +25,16 @@ I am currently completing my Master's in Data Science. This is a highlight of my
 * Engineered features using PCA.
 * Exported prediction results to .csv file. 
 
-#[Project 5: Union Membership](https://github.com/jmfoss03/FossiPortfolio/blob/d928e29e55872e561dcc138e8035956716eda1b0/Union%20Python)
+# [Project 5: Union Membership](https://github.com/jmfoss03/FossiPortfolio/blob/d928e29e55872e561dcc138e8035956716eda1b0/Union%20Python)
 * This was one of my proudest models thus far.
 * This was for a competition in which I had the top score of 83%
 * This was done by performing extensive PCA and ensemble to optimize results.
 * Linear Regression
 * Optimized Linear Regression, Extra Tree Classifier, XG Boost, Cat Boost, Logistic Regression, Random Forest, naive Bayes, SVC, Decision Tree and KNN to find the best model. Well in this case, to obtain the best score :)
-* Predicted members likely to leave a union.             
+* Predicted members likely to leave a union.
+
+Thank you for visiting!            
+
+# Created this page using Markdown 3/24/2022 v1.0
 
 
