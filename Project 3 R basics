@@ -1,0 +1,590 @@
+---
+title: "Intro to R"
+author: "Jeff Fossi"
+date: '2022-03-22'
+output: word_document
+source: https://youtu.be/_V8eKsto3Ug
+---
+
+```{r setup, include=FALSE}
+library(datasets)
+```
+
+# R Markdown
+## Setting up
+```{r}
+head(iris)
+summary(iris)
+plot(iris)
+```
+```{r}
+#clean up
+#clear packages
+detach("package:datasets", unload=TRUE) #for base
+
+#clear plots
+dev.off() # only if there is a plot
+
+#clear console
+cat("\014") #ctrl+L
+
+#clear console, clear mind :)
+```
+```{r}
+#install packages
+#https://cran.r-project.org/web/packages/available_packages_by_date.html
+#or one package to load all usefull packages
+#install.packages("pacman")
+#require(pacman)
+#library(pacman)
+
+#pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes, ggvis, httr, lubridate, plotly, rio, rmarkdown, shiny, stringr, tidyr)
+```
+```{r}
+# clear packages
+#p_unload(dplyr, tidyr, stringr) #clear specific packages
+#p_unload(all) # or easier, clear all add-ons
+#detach("package:datasets", unload=TRUE) #for base
+```
+```{r}
+#clear console
+cat("\014") #ctrl+L
+```
+# basic plotting(visualization)
+
+```{r}
+?plot #get help
+
+library(datasets)
+
+#simple plot will choose best visualization based on var type
+
+plot(iris$Species) #categorical variable
+plot(iris$Petal.Length) #quantitative var
+plot(iris$Species, iris$Petal.Width) #catagorical by quant
+plot(iris$Petal.Length, iris$Petal.Width) #quant pair
+plot(iris) #entire data frame
+```
+```{r}
+# advanced plot with options
+#see plot.R file
+
+plot(iris$Petal.Length, iris$Petal.Width,
+  col = "#cc0000",  # Hex code for datalab.cc red
+  pch = 19,         # Use solid circles for points
+  main = "Iris: Petal Length vs. Petal Width",
+  xlab = "Petal Length",
+  ylab = "Petal Width")
+```
+```{r}
+ plot(cos, 0, 2*pi)
+plot(exp, 1, 5)
+plot(dnorm, -3, +3)
+```
+```{r}
+# Formula plot with options
+plot(dnorm, -3, +3,
+  col = "#cc0000",
+  lwd = 5,
+  main = "Standard Normal Distribution",
+  xlab = "z-scores",
+  ylab = "Density")
+
+```
+
+
+
+```{r}
+
+# CLEAN UP #################################################
+
+# Clear packages
+detach("package:datasets", unload = TRUE)
+
+# Clear plots
+#dev.off()  # But only if there IS a plot
+
+# Clear console
+cat("\014")  # ctrl+L
+
+# Clear mind :)
+
+```
+# Barcharts
+```{r}
+library(datasets)
+
+# LOAD DATA ################################################
+
+?mtcars
+head(mtcars)
+
+# BAR CHARTS ###############################################
+
+barplot(mtcars$cyl)             # Doesn't work
+
+# Need a table with frequencies for each category
+cylinders <- table(mtcars$cyl)  # Create table
+barplot(cylinders)              # Bar chart
+plot(cylinders)                 # Default X-Y plot (lines)
+
+# CLEAN UP #################################################
+
+# Clear environment
+rm(list = ls()) 
+
+# Clear packages
+detach("package:datasets", unload = TRUE)  # For base
+
+# Clear plots
+dev.off()  # But only if there IS a plot
+
+# Clear console
+cat("\014")  # ctrl+L
+
+# Clear mind :)
+
+```
+# Histograms for quantitative variables (see what you have)
+
+```{r}
+# LOAD PACKAGES ############################################
+
+library(datasets)
+
+# LOAD DATA ################################################
+
+?iris
+head(iris)
+```
+```{r}
+# BASIC HISTOGRAMS #########################################
+
+hist(iris$Sepal.Length)
+hist(iris$Sepal.Width)
+hist(iris$Petal.Length)
+hist(iris$Petal.Width)
+```
+```{r}
+# HISTOGRAM BY GROUP #######################################
+
+# Put graphs in 3 rows and 1 column
+par(mfrow = c(3, 1))
+
+# Histograms for each species using options
+hist(iris$Petal.Width [iris$Species == "setosa"], #means "only for this row"
+  xlim = c(0, 3),
+  breaks = 9,
+  main = "Petal Width for Setosa",
+  xlab = "",
+  col = "red")
+
+hist(iris$Petal.Width [iris$Species == "versicolor"],
+  xlim = c(0, 3),
+  breaks = 9,
+  main = "Petal Width for Versicolor",
+  xlab = "",
+  col = "purple")
+
+hist(iris$Petal.Width [iris$Species == "virginica"],
+  xlim = c(0, 3),
+  breaks = 9,
+  main = "Petal Width for Virginica",
+  xlab = "",
+  col = "blue")
+
+# Restore graphic parameter
+par(mfrow=c(1, 1))
+
+```
+```{r}
+# CLEAN UP #################################################
+
+# Clear packages
+#detach("package:datasets", unload = TRUE)  # For base
+
+# Clear plots
+#dev.off()  # But only if there IS a plot
+
+# Clear console
+cat("\014")  # ctrl+L
+
+# Clear mind :)
+```
+# Bi-variate distributions Scatter plots
+
+Up until now we only looked at one variable at a time(univariates). Now we want to look how two variables interact(bi-variate). Scatter plots are the most common method to visualize the assocation between to quantitative variables. Things we want to look forward in the scatterplot are if the interaction between the two variables is linear, consistent spread, outliers, and correlation. 
+
+First, the two variables we assume linearity. We want to check for that.
+Secondly we want to check for consistency. If things spread out we have heteroscadicity.
+Third,Look for outliers.
+Finally, is ther correlation. 
+
+A good rule of thumb is to always first check the data visually. This builds the foundation for any further analysis moving forward. 
+
+```{r}
+# LOAD DATASETS PACKAGES ###################################
+
+library(datasets)  # Load/unload base packages manually
+
+# LOAD DATA ################################################
+
+?mtcars
+head(mtcars)
+```
+
+```{r}
+# Good to first check univariate distributions first
+hist(mtcars$wt)
+hist(mtcars$mpg)
+```
+```{r}
+# Basic X-Y plot for two quantitative variables
+plot(mtcars$wt, mtcars$mpg)
+```
+```{r}
+# Add some options
+plot(mtcars$wt, mtcars$mpg,
+  pch = 19,         # Solid circle
+  cex = 1.5,        # Make 150% size
+  col = "#cc0000",  # Red
+  main = "MPG as a Function of Weight of Cars",
+  xlab = "Weight (in 1000 pounds)",
+  ylab = "MPG")
+```
+# Overlaying Plots
+
+Good for looking at looking at everything simuletaniously, Get as much insight, is as small as a place as possible. 
+
+```{r}
+# INSTALL AND LOAD PACKAGES ################################
+
+library(datasets)  # Load/unload base packages manually
+
+# LOAD DATA ################################################
+
+# Annual Canadian Lynx trappings 1821-1934
+?lynx
+head(lynx)
+```
+```{r}
+# HISTOGRAM ################################################
+
+# Default
+hist(lynx)
+```
+```{r}
+# Add some options
+hist(lynx,
+     breaks = 14,          # "Suggests" 14 bins
+     freq   = FALSE,       # Axis shows density, not freq.
+     col    = "thistle1",  # Color for histogram
+     main   = paste("Histogram of Annual Canadian Lynx",
+                    "Trappings, 1821-1934"),
+     xlab   = "Number of Lynx Trapped")
+
+# Add a normal distribution
+curve(dnorm(x, mean = mean(lynx), sd = sd(lynx)),
+      col = "thistle4",  # Color of curve
+      lwd = 2,           # Line width of 2 pixels
+      add = TRUE)        # Superimpose on previous graph
+
+# Add two kernel density estimators
+lines(density(lynx), col = "blue", lwd = 2)
+lines(density(lynx, adjust = 3), col = "purple", lwd = 2)
+
+# Add a rug plot
+rug(lynx, lwd = 2, col = "gray")
+```
+# Basic Statistics
+
+
+```{r}
+library(datasets)
+
+head(iris)
+```
+```{r}
+summary(iris$Species) #categorical
+summary(iris$Sepal.Length) #Quantitative
+summary(iris) #Entire df
+```
+```{r}
+# load psych package and pacman
+
+pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes, ggvis, httr, lubridate, plotly, rio, rmarkdown, shiny, stringr, tidyr)
+
+p_load(psych) #opens pdf
+p_help(psych, web = F) #opens in web browser
+
+describe(iris)
+```
+
+Selecting cases to look at more closely.
+```{r}
+# SELECT case BY CATEGORY #######################################
+
+# Versicolor
+hist(iris$Petal.Length[iris$Species == "versicolor"],
+  main = "Petal Length: Versicolor")
+
+# Virginica
+hist(iris$Petal.Length[iris$Species == "virginica"],
+  main = "Petal Length: Virginica")
+
+# Setosa
+hist(iris$Petal.Length[iris$Species == "setosa"],
+  main = "Petal Length: Setosa")
+```
+```{r}
+# SELECT BY VALUE ##########################################
+
+# Short petals only (all Setosa)
+hist(iris$Petal.Length[iris$Petal.Length < 2],
+  main = "Petal Length < 2")
+```
+```{r}
+# MULTIPLE SELECTORS #######################################
+
+# Short Virginica petals only
+hist(iris$Petal.Length[iris$Species == "virginica" & 
+  iris$Petal.Length < 5.5],
+  main = "Petal Length: Short Virginica")
+```
+```{r}
+# CREATE SUBSAMPLE #########################################
+
+# Format: data[rows, columns]
+# Leave rows or columns blank to select all
+i.setosa <- iris[iris$Species == "setosa", ]
+
+# EXPLORE SUBSAMPLE ########################################
+
+head(i.setosa)
+summary(i.setosa$Petal.Length)
+hist(i.setosa$Petal.Length)
+```
+# Accessing data
+
+Data Types(numeric, char, boolean ets)
+Data structures (vector, array, df)
+
+Basic data structures, see DataFormats.R
+
+Factors- Categories and names. An attribute of a vector that specifies the possible values & their order.
+
+```{r}
+# create data
+
+(x1 <- 1:3) #()'s auto save and run 
+(y <- 1:9)
+```
+
+```{r}
+# combine variables
+(df1 <- cbind.data.frame(x1, y))
+typeof(df1$x1)
+str(df1)
+```
+```{r}
+# convert to a factor
+(x2 <- as.factor(c(1:3)))
+(df2 <- cbind.data.frame(x2,y))
+typeof(df2$x2)
+str(df2)
+```
+```{r}
+# convert to a factor
+(x3 <- c(1:3))
+(df3 <- cbind.data.frame(x3,y))
+(df3$x3 <- factor(df3$x3,
+                  levels = c(1,2,3)))
+
+
+typeof(df3$x3)
+str(df3)
+```
+```{r}
+# convert to a factor with labels
+(x4 <- c(1:3))
+(df4 <- cbind.data.frame(x4,y))
+(df4$x4 <- factor(df4$x4,
+                  levels = c(1,2,3),
+                  labels = c("macOS", "Windows", "Linux")))
+
+
+typeof(df4$x4)
+str(df4)
+
+df4
+```
+```{r}
+# ordered factors and labels
+(x5 <- c(1:3))
+(df5 <- cbind.data.frame(x5,y))
+(df5$x5 <- ordered(df5$x5,
+                  levels = c(3,1,2),
+                  labels = c("No", "Maybe", "Yes")))
+
+df5
+```
+# Ad hoc data
+
+```{r}
+x1 <- 0:10  # alt+- shortcut to <-
+x1
+```
+```{r}
+x2 <- 10:0
+x2
+```
+```{r}
+?seq
+x3 <- seq(10)
+x3
+```
+```{r}
+x4 <- seq(30,0, by = -3)
+x4
+```
+```{r}
+?c
+
+x5 <- c(5,4,2,6,7,2,2,3,2,8)
+x5
+```
+```{r}
+?scan
+
+x6 <- scan()
+x6
+```
+
+```{r}
+?rep #repeat
+
+
+```
+
+# Importing data
+
+```{r}
+# See importingdata.R
+```
+
+# Modeling data examples
+## Hierarchical clustering
+Which cases are like other ones, or like for like
+Hierarchal vs set k (or groups)
+Measures of distance
+Devisive vs agglomerative
+
+see HierachicalClustering.R
+
+# PCA Principal Componant Analysis
+aka dimensionality reduction.
+
+see PrincipalComponents.R
+
+# Regression
+
+Out of many variables, one variable.
+Use many variables to predict scores on one variable.
+
+see Regression.R
+
+# One-way Anova from Introduction to R:Anova youtube 2/22/2022
+
+```{r}
+set.seed(12)
+
+# Generate some sample Demographic data
+
+voter_race <- sample(c("white", "hispanic", "black", "asian", "other"),
+                       prob = c(0.5, 0.25, 0.15, 0.1, 0.1),
+                       size = 1000,
+                       replace = TRUE)
+
+#Generate some age data (equal means)
+
+voter_age <- rnorm(1000, 50, 20)
+voter_age <- ifelse(voter_age<18, 18, voter_age)
+
+#Conduct anova
+
+av_model <- aov(voter_age ~ voter_race)
+
+summary(av_model)
+```
+0.515 > 0.05, therefore there is no difference in the means between the two variables
+
+```{r}
+str(voter_race)
+```
+
+
+```{r}
+plot(voter_age)
+```
+
+
+
+```{r}
+#Draw ages from a different distribution for white voters
+
+white_dist <- rnorm(1000, 55, 20)
+white_dist <- ifelse(voter_age<18, 18, white_dist)
+
+new_voter_ages <- ifelse(voter_race == "white", white_dist, voter_age)
+
+av_model2 <-  aov(new_voter_ages ~ voter_race)
+
+summary(av_model2)
+```
+The F statistic is higher, so we can see there is a difference from the first model. Also P-value is less than 0.05 therefore there is a differen in the means.
+
+```{r}
+pairwise.t.test(new_voter_ages,
+                voter_race,
+                p.adj = "none")
+```
+```{r}
+pairwise.t.test(new_voter_ages,
+                voter_race,
+                p.adj = "bonferroni") # conservative way of adjusting p-value
+```
+```{r}
+TukeyHSD(av_model2)
+```
+
+# Two-way ANOVA
+
+A two-way ANOVA extends the analysis of variance to cases where you have 2 categorical variables of interest.
+
+```{r}
+set.seed(10)
+
+voter_gender <- sample(c("male", "female"),
+                       size=1000,
+                       prob=c(0.5,0.5),
+                       replace = TRUE)
+
+voter_age_2 <- ifelse(voter_gender=="male", voter_age-1.5, voter_age+1.5)
+voter_age_2 <- ifelse(voter_age_2<18,18, voter_age_2)
+
+av_model3 <- aov(voter_age_2 ~ voter_race + voter_gender)
+summary(av_model3)
+
+```
+```{r}
+#check for interaction
+
+av_model4 <- aov(voter_age_2 ~ voter_race + voter_gender +
+                   (voter_race * voter_gender))
+summary(av_model4)
+
+```
+```{r}
+plot(av_model4)
+```
+
