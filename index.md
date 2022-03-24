@@ -25,7 +25,7 @@ I am currently completing my Master's in Data Science. This is a highlight of my
 * Engineered features using PCA.
 * Exported prediction results to .csv file. 
 
-# [Project 5: Union Membership](https://github.com/jmfoss03/FossiPortfolio/blob/d928e29e55872e561dcc138e8035956716eda1b0/Union%20Python)
+# [Project 5: Union Membership Python(Jupyter)](https://github.com/jmfoss03/FossiPortfolio/blob/d928e29e55872e561dcc138e8035956716eda1b0/Union%20Python)
 * This was one of my proudest models thus far.
 * This was for a competition in which I had the top score of 83%
 * This was done by performing extensive PCA and ensemble to optimize results.
@@ -35,6 +35,6 @@ I am currently completing my Master's in Data Science. This is a highlight of my
 
 Thank you for visiting!            
 
-# Created this page using Markdown 3/24/2022 v1.0
+*Created this page using Markdown 3/24/2022 v1.0
 
 
