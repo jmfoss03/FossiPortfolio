@@ -2,7 +2,7 @@
 
 I am currently completing my Master's in Data Science. This is a highlight of my projects. 
 
-# Project 1: Covid Tracker
+# [Project 1: Covid Tracker](https://github.com/jmfoss03/FossiPortfolio/blob/ec77c8421874d845763fef7e1b27707e476ab35d/Covid%20Query.sql)
 * Created a tool to track current covid data.
 * Scrapes...
 * Engineered features
