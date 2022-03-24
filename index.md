@@ -1,6 +1,6 @@
 ## Jeff Fossi Portfolio
 
-I am currently completing my Master's in Data Science. This is a highlight of my projects. 
+I am currently completing my Master's in Data Science. This is a highlight of my recent projects. 
 
 # [Project 1: Covid Tracker SQL](https://github.com/jmfoss03/FossiPortfolio/blob/ec77c8421874d845763fef7e1b27707e476ab35d/Covid%20Query.sql)
 * Created a tool to track current covid data.
@@ -25,12 +25,12 @@ I am currently completing my Master's in Data Science. This is a highlight of my
 * Engineered features using PCA.
 * Exported prediction results to .csv file. 
 
+#[Project 5: Union Membership](https://github.com/jmfoss03/FossiPortfolio/blob/d928e29e55872e561dcc138e8035956716eda1b0/Union%20Python)
+* This was one of my proudest models thus far.
+* This was for a competition in which I had the top score of 83%
+* This was done by performing extensive PCA and ensemble to optimize results.
+* Linear Regression
+* Optimized Linear Regression, Extra Tree Classifier, XG Boost, Cat Boost, Logistic Regression, Random Forest, naive Bayes, SVC, Decision Tree and KNN to find the best model. Well in this case, to obtain the best score :)
+* Predicted members likely to leave a union.             
 
 
-
-
-
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
