@@ -2,11 +2,9 @@
 
 I am currently completing my Master's in Data Science. This is a highlight of my projects. 
 
-# [Project 1: Covid Tracker](https://github.com/jmfoss03/FossiPortfolio/blob/ec77c8421874d845763fef7e1b27707e476ab35d/Covid%20Query.sql)
+# [Project 1: Covid Tracker SQL](https://github.com/jmfoss03/FossiPortfolio/blob/ec77c8421874d845763fef7e1b27707e476ab35d/Covid%20Query.sql)
 * Created a tool to track current covid data.
-* Scrapes...
 * Engineered features
-* Optimized Linear, Lasso, Random Forest ...to find the best model.
 * Built a client facing API using Tableau.
 
 # [Project 2: Anova in R](https://github.com/jmfoss03/FossiPortfolio/blob/3c5afc88f36b0f6288d802280f4f14c7b0d27992/Project%202%20Anova)
@@ -16,6 +14,16 @@ I am currently completing my Master's in Data Science. This is a highlight of my
 
 # [Project 3: An R refresher](https://github.com/jmfoss03/FossiPortfolio/blob/3c5afc88f36b0f6288d802280f4f14c7b0d27992/Project%203%20R%20basics)
 * I needed a refresh on R basics after a year of not using it much.
+
+# [Project 4: Titanic Python](https://github.com/jmfoss03/FossiPortfolio/blob/817b7869ef8987db48a3a31df8bac998c144b0ca/Titanic%20Data%20set%20Python)
+* Here I analyze the Titanic dataset to output predictions of survivial.
+* Explored the data using visualization.
+* Performed data cleansing.
+* Performed outlier analysis.
+* Train Test split data and train model using SVC.
+* Obtained predictions from the model and create a confusion matrix and a classification report.
+* Engineered features using PCA.
+* Exported prediction results to .csv file. 
 
 
 
