@@ -1,0 +1,97 @@
+
+
+# One-way Anova from Introduction to R:Anova youtube 2/22/2022
+
+```{r}
+set.seed(12)
+
+# Generate some sample Demographic data
+
+voter_race <- sample(c("white", "hispanic", "black", "asian", "other"),
+                       prob = c(0.5, 0.25, 0.15, 0.1, 0.1),
+                       size = 1000,
+                       replace = TRUE)
+
+#Generate some age data (equal means)
+
+voter_age <- rnorm(1000, 50, 20)
+voter_age <- ifelse(voter_age<18, 18, voter_age)
+
+#Conduct anova
+
+av_model <- aov(voter_age ~ voter_race)
+
+summary(av_model)
+```
+0.515 > 0.05, therefore there is no difference in the means between the two variables
+
+```{r}
+str(voter_race)
+```
+
+
+```{r}
+plot(voter_age)
+```
+
+
+
+```{r}
+#Draw ages from a different distribution for white voters
+
+white_dist <- rnorm(1000, 55, 20)
+white_dist <- ifelse(voter_age<18, 18, white_dist)
+
+new_voter_ages <- ifelse(voter_race == "white", white_dist, voter_age)
+
+av_model2 <-  aov(new_voter_ages ~ voter_race)
+
+summary(av_model2)
+```
+The F statistic is higher, so we can see there is a difference from the first model. Also P-value is less than 0.05 therefore there is a differen in the means.
+
+```{r}
+pairwise.t.test(new_voter_ages,
+                voter_race,
+                p.adj = "none")
+```
+```{r}
+pairwise.t.test(new_voter_ages,
+                voter_race,
+                p.adj = "bonferroni") # conservative way of adjusting p-value
+```
+```{r}
+TukeyHSD(av_model2)
+```
+
+# Two-way ANOVA
+
+A two-way ANOVA extends the analysis of variance to cases where you have 2 categorical variables of interest.
+
+```{r}
+set.seed(10)
+
+voter_gender <- sample(c("male", "female"),
+                       size=1000,
+                       prob=c(0.5,0.5),
+                       replace = TRUE)
+
+voter_age_2 <- ifelse(voter_gender=="male", voter_age-1.5, voter_age+1.5)
+voter_age_2 <- ifelse(voter_age_2<18,18, voter_age_2)
+
+av_model3 <- aov(voter_age_2 ~ voter_race + voter_gender)
+summary(av_model3)
+
+```
+```{r}
+#check for interaction
+
+av_model4 <- aov(voter_age_2 ~ voter_race + voter_gender +
+                   (voter_race * voter_gender))
+summary(av_model4)
+
+```
+```{r}
+plot(av_model4)
+```
+
