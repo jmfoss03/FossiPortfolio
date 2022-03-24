@@ -15,7 +15,7 @@ I am currently completing my Master's in Data Science. This is a highlight of my
 * Generate, compare and review plots.
 
 # [Project 3: An R refresher](https://github.com/jmfoss03/FossiPortfolio/blob/3c5afc88f36b0f6288d802280f4f14c7b0d27992/Project%203%20R%20basics)
-* I need a refresh on R basics after a year of not using it much.
+* I needed a refresh on R basics after a year of not using it much.
 
 
 
