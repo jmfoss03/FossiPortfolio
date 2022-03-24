@@ -1,2 +1,2 @@
-# FossiPortfolio
-A display of my R, Python, SQL and other beginner programming skills.
+# Jeff Fossi Portfolio
+A display of my R, Python, SQL and data science skills.
