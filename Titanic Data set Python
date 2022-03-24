@@ -209,7 +209,7 @@ from sklearn.model_selection import GridSearchCV
 param_grid = {'C': [0.1,1, 10, 100], 'gamma': [1,0.1,0.01,0.001]} 
 grid = GridSearchCV(SVC(),param_grid,refit=True,verbose=2)
 grid.fit(X_train,y_train)
-Now take that grid model and create some predictions using the test set and create classification reports and confusion matrices for them. Were you able to improve?
+Use the grid model and create some predictions using the test set and create classification reports and confusion matrices. 
 
 grid_predictions = grid.predict(X_test)
 print(confusion_matrix(y_test,grid_predictions))
