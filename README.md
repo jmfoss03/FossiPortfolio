@@ -1,2 +1,2 @@
 # FossiPortfolio
-A display of my R, Python, SQL, SAS and other beginner programming skills. I am looking to expand my data science skills. 
+A display of my R, Python, SQL, SAS, Spark(Datbricks), Bokeh, R Shiny and other beginner Data Science programming skills. I am looking to expand my data science skills. 
