@@ -1,0 +1,67 @@
+---
+title: "Three-Way ANOVA"
+output: html_notebook
+---
+
+# Shrimp Weight Gain Example
+A researcher wanted to know how water temperature, water salinity, and density of shrimp populations influenced the growth rate of shrimp raised in aquaria and whether the factors acted independently on the shrimp populations.
+
+```{r}
+# Load Packages
+
+library(magrittr)
+library(ggplot2)
+library(gridExtra)
+library(grid)
+```
+
+
+
+```{r}
+# set working directory
+
+setwd("C:/Users/jmf_a/OneDrive/DSCI618 Experimental Design/week5/")
+
+#read data into R
+Weight.gain <-read.csv("Shrimp.csv")
+head(Weight.gain)
+```
+
+# Data
+```{r}
+#Convert int to factor
+
+factors <- c("Temperature","Density", "Salinity")
+Weight.gain[,factors] <- lapply(Weight.gain[, factors], as.factor)
+str(Weight.gain)
+```
+
+# Three-way ANOVA Analysis
+```{r}
+summary(aov(WeightGain~.+.^3, data = Weight.gain))
+```
+
+
+# Three-factor Interaction
+```{r}
+opar <- par(mfrow=c(2,1),cex=.8)
+
+# Three-way Interaction by two dimensional plots for Temperature levels 
+Temperature_25 <- Weight.gain %>% filter(Weight.gain, Temperature=="25")
+Temperature_35 <- Weight.gain %>% filter(Weight.gain, Temperature=="35")
+
+
+```
+```{r}
+#interaction.plot(x.factor, trace.factor, response)
+
+with(Temperature, interaction.plot(Density,Salinity,WeightGain,type="b",col=10:12
+                                    ,pch=19, fixed=T,xlab="Density",ylab="Average WeightGain"))
+title (main = "Temperature_25")
+
+with(Temperature, interaction.plot(Density,Salinity,WeightGain,type="b",col=10:12
+                                    ,pch=19, fixed=T,xlab="Density",ylab="Average WeightGain"))
+title (main = "Temperature_35")
+```
+
+?filter
