@@ -1,0 +1,102 @@
+---
+title: "Project4"
+author: "Jeff Fossi"
+date: '2022-03-17'
+output: html_document
+---
+#Overview
+An experiment was conducted to study life (in hours) of two different brands of batteries in three different devices (radio, camera, and portable DVD player). A completely randomized two-factor factorial experiment was conducted and the following data resulted.
+
+#Requirements & Questions
+Read the dataset in Batteries_Life.csv  Download Batteries_Life.csvinto R. Name the loaded data Batteries_Life. And use the head() function to show the first 6 rows.
+
+
+```{r}
+setwd("C:/Users/jmf_a/OneDrive/DSCI618 Experimental Design/week4/")
+
+#read data into R
+batteries <-read.csv("Batteries_Life.csv")
+head(batteries)
+```
+Conduct the analysis of variance and test hypotheses on the main effects. What conclusions can be drawn using significance level=0.05?
+
+```{r}
+factors <- c("Brand","Device")
+batteries[,factors] <- lapply(batteries[, factors], as.factor)
+str(batteries)
+```
+
+
+```{r}
+#Two-Way ANOVA model
+#Method I: 
+batteries_twoway.aov <- aov(Life~Brand*Device,batteries)
+summary(batteries_twoway.aov)
+
+```
+The type of device plays a large role in battery life with a p-value near 0, which is less than 0.05. Brand also affects battery life with a p-value of 0.02.
+
+Construct an interaction plot.
+
+```{r}
+#Interaction Plot
+with(batteries, interaction.plot(Brand,Device,Life,type="b",col=10:12
+                                    ,pch=19, fixed=T,xlab="Brand",ylab="Average life"))
+```
+
+
+Test on the interaction between factors. What conclusions can be drawn using significance level=0.05?
+
+```{r}
+#F critical value
+#The critical region is the upper tail of the F distribution so lower.tail is set to False
+#The critical value for Interaction 
+qf(c(0.05),2,6,lower.tail=FALSE)
+
+```
+```{r}
+#The critical value for main effects
+qf(c(0.05),1,2,lower.tail=FALSE)
+```
+If α=0.05, we conclude that there is a significant interaction between brand, device and life because the critical value is 5.14 and the F value = 5.14 > 0.476. Furthermore, F0.05,1,2 = 18.51, so the main effects of device is also significant because the F values  130.748 is larger than the critical value. The main effects of device 9.330 is less than the critical value, but is significant with a p-value less than 0.05. 
+
+The ANOVA table shows the P-values for the test statistics as well. The P-values for both brand and device are less than 0.05 so we get the same conclusion. 
+
+
+Prepare appropriate residual plots and comment on the model’s adequacy.
+
+```{r}
+library(ggplot2)
+par(mfrow=c(2,2))  #view all plots together
+
+#Plot is a convenient wrapper function for diagnostic plots.
+opar <- par(mfrow=c(2,2),cex=.8)
+plot(batteries_twoway.aov)
+
+#Append Residual to batteries dataset
+batteries$residual <- batteries_twoway.aov$residuals
+
+#Plot of residuals vs. Brand
+ggplot(batteries, aes(x=Brand, y=residual)) +
+  geom_point(size=2, shape=23)+
+  labs(title = "Plot of residuals vs. Brand")
+```
+```{r}
+#Plot of residuals vs. Device
+ggplot(batteries, aes(x=Device, y=residual)) +
+  geom_point(size=2, shape=23)+
+  labs(title = "Plot of residuals vs. Device")
+```
+
+The normal Q-Q plot of these residuals does not reveal anything particularly troublesome, although the largest negative residual (8) does stand out somewhat from the others. Also, the largest positive residuals (4 and 7) stand out as well. This could indicate another unknown factor is in play. The residuals versus the fitted values show that a larger variance is associated with larger fitted value. Once again 8, 4 and 7 do stand out and warrants further research. 
+
+The constant leverage plot, we can see brands a and b contain 3 extreme residuals (4, 7, and 8). The plot of residuals vs. brand type and plot of device vs. temperature shown below can help further investigate the effect of these two extreme residuals. Both plots indicate inequality of variance. Brand B in combination with device radio possibly having larger variance than the others. These two extreme residuals are responsible for the inequality of variance detected. If the re-examination of the data does not reveal any obvious problem, such as an error in recording, we accept these responses as legitimate. It is possible that this particular device combination produces a slightly more erratic battery life than the others.
+
+Which brand of batteries would you recommend?
+
+I would recommend brand B battery for longevity. 
+
+#Submit
+When you have completed the assignment, answering the required questions, submit your R Markdown file to the Canvas assignment.
+
+
