@@ -1,0 +1,154 @@
+---
+title: "Amazon books Final"
+author: "Jeff Fossi"
+date: "2022-10-14"
+output: html_document
+---
+```{r}
+# Importing libraries
+library(flexdashboard)
+library(tidyverse)
+library(highcharter)
+library(gt)
+library(htmltools)
+library(viridis)
+library(readr)
+library(dplyr)
+```
+
+```{r}
+# Importing data
+df2 <- read_csv('C:/Users/jmf_a/OneDrive/BDAT 630 Data Visualization/final/AmazonBestSellers2013-2022Books.csv', show_col_types = FALSE)
+```
+
+```{r}
+head(df2)
+```
+```{r}
+df2 <- select(df2, 'rank', 'title', 'author', 'customerranking', 'customerrankingcount', 'format', 'price', 'year')
+
+```
+
+```{r}
+# Removing duplicates
+df2 <- df2 %>% 
+  distinct(title, .keep_all = TRUE) %>% 
+  rename(rank = 'rank')
+```
+
+```{r}
+# remove #, "out of 5 stars"  and $ from columns rank customerranking, and price respectively. 
+
+df2$rank <- as.numeric(gsub("\\#", "", df2$rank))
+#df$customerranking <- gsub(" out of 5 stars", "", as.character((df$customerranking)))
+
+df2$customerranking <- as.numeric(gsub(" out of 5 stars", "", df2$customerranking))
+
+df2$price <- as.numeric(gsub("\\$", "", df2$price))
+```
+
+```{r}
+# Remove null values. 
+
+df2 <- na.omit(df2)
+```
+
+```{r}
+head(df2)
+
+```
+
+```{r}
+# Colors
+custom_colors <- viridis::mako(n = 5)
+
+# Most common genre
+df2 %>% 
+  group_by(format) %>% 
+  summarise(count = n()) %>% 
+  hchart('pie', hcaes(x = format, y = count, color = custom_colors)) %>% 
+  hc_add_theme(hc_theme_google()) %>% 
+  hc_tooltip(pointFormat='<b>Proportion: </b> {point.percentage:,.2f}%') %>% 
+  hc_title(text = 'Most Common format from 2013 to 2022',
+           style = list(fontSize = '15px', fontWeight = 'bold')) %>% 
+  hc_credits(enabled = FALSE, text = '@jefffossi')
+  
+```
+```{r}
+# Colors
+custom_colors <- viridis::mako(n = 15)
+
+# Most popular authors by reviews
+df2 %>% 
+  group_by(author) %>% 
+  summarise(Reviews = mean(customerranking)) %>% 
+  arrange(desc(Reviews)) %>% 
+  head(15) %>% 
+  hchart('column', hcaes(x = author, y = Reviews,color = custom_colors)) %>%   hc_add_theme(hc_theme_google()) %>% 
+  hc_tooltip(pointFormat = '<b>Average of Reviews: </b> {point.y} <br>') %>% 
+  hc_title(text = 'Most Popular Authors from 2013 to 2022',
+           style = list(fontSize = '15px', fontWeight = 'bold')) %>% 
+  hc_subtitle(text = 'By Average of Reviews on Amazon',
+              style = list(fontSize = '16px')) %>% 
+  hc_credits(enabled = FALSE, text = '@jefffossi')
+```
+```{r}
+# Colors
+custom_colors <- viridis::mako(n = 15)
+
+# Most popular authors by reviews
+df2 %>% 
+  group_by(author) %>% 
+  summarise(Reviews = sum(customerranking)) %>% 
+  arrange(desc(Reviews)) %>% 
+  head(15) %>% 
+  hchart('column', hcaes(x = author, y = Reviews,color = custom_colors)) %>%   hc_add_theme(hc_theme_google()) %>% 
+  hc_tooltip(pointFormat = '<b>Total of Reviews: </b> {point.y} <br>') %>% 
+  hc_title(text = 'Most Popular Authors from 2013 to 2022',
+           style = list(fontSize = '15px', fontWeight = 'bold')) %>% 
+  hc_subtitle(text = 'By Sum of Reviews on Amazon',
+              style = list(fontSize = '16px')) %>% 
+  hc_credits(enabled = FALSE, text = '@jefffossi')
+```
+```{r}
+# Colors
+custom_colors <- viridis::plasma(n = 15)
+
+# Most popular books by reviews
+df2 %>% 
+  arrange(desc(customerrankingcount)) %>% 
+  head(15) %>% 
+  hchart('bar', hcaes(x = title, y = customerrankingcount, color = custom_colors)) %>% 
+  hc_add_theme(hc_theme_google()) %>% 
+  hc_tooltip(pointFormat = '<b>Number of Reviews: </b> {point.y} <br>') %>% 
+  hc_title(text = 'Most Popular Books from 2013 to 2022',
+           style = list(fontSize = '25px', fontWeight = 'bold')) %>% 
+  hc_subtitle(text = 'By Number of Reviews',
+              style = list(fontSize = '16px')) %>% 
+  hc_credits(enabled = TRUE, text = '@jefffossi')
+```
+```{r}
+# This is going to be a datatable
+df3 <- df2 %>% 
+  filter(customerranking >= 4.9) %>% 
+  arrange(desc(customerrankingcount)) %>% 
+  select(title, author)
+
+# HTML table
+div(style = 'height:600px; overflow-y:scroll', gt(df3) %>% 
+      tab_header(title = md('Best Books from 2013 to 2022'),
+                 subtitle = md('By Users Rating')) %>% 
+      opt_table_font(font = list(google_font('Chivo'), default_fonts())) %>% 
+      tab_style(location = cells_column_labels(columns = everything()),
+                style = list(cell_borders(sides = 'bottom', 
+                                          weight = px(2)), 
+                             cell_text(weight = 'bold'))) %>% 
+      tab_options(table.font.size = px(12L),
+                  table.border.top.style = 'none',
+                  column_labels.border.bottom.width = 2,
+                  table_body.border.top.style = 'none',
+                  data_row.padding = px(3))
+    )
+```
+
+
